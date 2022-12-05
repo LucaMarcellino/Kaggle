@@ -40,7 +40,7 @@ class Basicblock(nn.Module):
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_planes, self.expansion * planes,
                           kernel_size=1, stride=stride, bias=False),
-                Norm(planes, type="Batch Norm"),# Norm(planes, type="Group Norm")
+                Norm(planes, type="Batch Norm"), Norm(planes, type="Group Norm")
             )
 
     def forward(self, x):
@@ -56,6 +56,8 @@ class Bottleneck(nn.Module):
 
     def __init__(self, in_planes,alpha_b, alpha_g , planes, stride=1, norm_type="Batch Norm"):
         super(Bottleneck, self).__init__()
+        self.alpha_b = alpha_b
+        self.alpha_g = alpha_g
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = Norm(planes, type="Batch Norm")
         self.gn1 = Norm(planes, type="Group Norm")
@@ -67,8 +69,6 @@ class Bottleneck(nn.Module):
                                planes, kernel_size=1, bias=False)
         self.bn3 = Norm(planes, type="Batch Norm")
         self.gn3 = Norm(planes, type="Group Norm")
-        self.alpha_b = alpha_b
-        self.alpha_g = alpha_g
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
             self.shortcut = nn.Sequential(
@@ -108,7 +108,7 @@ class ResNet(nn.Module):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
-            layers.append(block(self.in_planes, planes, stride, norm_type, alpha_g = self.alpha_g, alpha_b = self.alpha_b))
+            layers.append(block(self.in_planes,self.alpha_b,self.alpha_g,planes, stride, norm_type))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
@@ -133,4 +133,4 @@ def ResNet38(norm_type="Batch Norm"):
 
 
 def ResNet50(alpha_b, alpha_g,norm_type="Batch Norm"):
-    return ResNet(Bottleneck, [3, 4, 6, 3], norm_type=norm_type, alpha_g = alpha_g, alpha_b = alpha_b)
+    return ResNet(Bottleneck,alpha_b,alpha_g, [3, 4, 6, 3], norm_type=norm_type)
