@@ -36,7 +36,7 @@ class Basicblock(nn.Module):
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_planes, self.expansion * planes,
                           kernel_size=1, stride=stride, bias=False),
-                Norm(planes, type=norm_type)
+                Norm(planes, type="Batch Norm"), Norm(planes, type="Group Norm")
             )
 
     def forward(self, x):
