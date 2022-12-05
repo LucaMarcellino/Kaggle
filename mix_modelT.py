@@ -128,5 +128,5 @@ def ResNet38(norm_type="Batch Norm"):
     return ResNet(Bottleneck, [2, 3, 5, 2], norm_type=norm_type)
 
 
-def ResNet50(norm_type="Batch Norm"):
-    return ResNet(Bottleneck, [3, 4, 6, 3], norm_type=norm_type)
+def ResNet50(alpha_b, alpha_g,norm_type="Batch Norm"):
+    return ResNet(Bottleneck(alpha_b = alpha_b,alpha_g=alpha_g ), [3, 4, 6, 3], norm_type=norm_type, alpha_g=alpha_g,alpha_b=alpha_b)
