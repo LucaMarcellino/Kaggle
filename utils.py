@@ -19,10 +19,6 @@ def exp_details(args):
     print(f'    Fraction of users  : {args.frac}')
     print(f'    Local Batch size   : {args.local_bs}')
     print(f'    Local Epochs       : {args.local_ep}\n')
-    
-    print('Mixed Parameters:')
-    print(f'Alpha_batch: {args.alpha_b}')
-    print(f'Alpha_group: {args.alpha_g}')	
     return
 
 def get_dataset(args):
@@ -49,7 +45,7 @@ def get_dataset(args):
         user_group = cifar_iid(train_dataset,args.num_users)
     else:
         #sample Non-IID user
-        user_group = cifar_noniid(train_dataset,args.num_users)
+        user_group, _ = cifar_noniid(train_dataset,args.num_users)
    
     return train_dataset, test_dataset, user_group 
 

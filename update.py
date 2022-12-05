@@ -71,7 +71,7 @@ class LocalUpdate(object):
 
                 if self.args.verbose and (batch_idx % 10 == 0):
                     print('| Global Round : {} | Local Epoch : {} | [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                        global_round+1, iter+1, batch_idx * len(images),
+                        global_round, iter, batch_idx * len(images),
                         len(self.trainloader.dataset),
                         100. * batch_idx / len(self.trainloader), loss.item()))
                 batch_loss.append(loss.item())
@@ -96,8 +96,12 @@ class LocalUpdate(object):
             # Prediction
             _, pred_labels = torch.max(outputs, 1)
             pred_labels = pred_labels.view(-1)
+            print(pred_labels)
+            print(labels)
             correct += torch.sum(torch.eq(pred_labels, labels)).item()
             total += len(labels)
+            print("Correct predictions: {}".format(correct))
+            print("Total labels: {}".format(total))
 
         accuracy = correct/total
         return accuracy, loss
