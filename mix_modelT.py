@@ -9,11 +9,15 @@ import torch.nn.functional as F
 
 type = 'Batch Norm'
 
+class GroupNorm32(torch.nn.GroupNorm):
+    def __init__(self, num_channels, num_groups=2, **kargs):
+        super().__init__(num_groups, num_channels, **kargs)
+
 def Norm(planes, type, num_groups=2):
     if type == 'Batch Norm':
         return nn.BatchNorm2d(planes)
     elif type == 'Group Norm':
-        return nn.GroupNorm(num_groups, planes)
+        return GroupNorm32(num_groups, planes)
     
     
 class Basicblock(nn.Module):
