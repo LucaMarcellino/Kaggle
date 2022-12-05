@@ -13,7 +13,7 @@ import torch.nn as nn
 from options import args_parser 
 from utils import exp_details, get_dataset, average_weights
 from update import LocalUpdate
-from models import ResNet50
+from mix_modelT import ResNet50
 from torchvision import models
 from reproducibility import seed_worker
 
