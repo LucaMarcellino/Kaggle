@@ -77,7 +77,7 @@ class Bottleneck(nn.Module):
         out = F.relu(self.alpha_b*self.bn1(self.conv1(x))+ self.alpha_g * self.gn1(self.conv1(x)))
         out = (self.alpha_b * self.bn2(self.conv2(out)) + self.alpha_g *self.gn2(self.conv2(out)))
         out = (self.alpha_b * self.bn3(self.conv2(out)) + self.alpha_g *self.gn3(self.conv2(out)))
-        out += self.shortcut(x)
+        #out += self.shortcut(x)
         out = F.relu(out)
         return out
 
