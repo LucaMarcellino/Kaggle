@@ -12,9 +12,11 @@ import torch
 import torch.nn as nn
 from options import args_parser 
 from utils import exp_details, get_dataset, average_weights
-from update import LocalUpdate, DatasetSplit, test_inference
+from update import LocalUpdate
 from models import ResNet50
 from torchvision import models
+from reproducibility import seed_worker
+
 
 if __name__ == '__main__':
     
@@ -35,36 +37,38 @@ if __name__ == '__main__':
     train_dataset, test_dataset, user_groups = get_dataset(args)
     testloader = torch.utils.data.DataLoader(test_dataset, batch_size=args.local_bs, shuffle=False, num_workers=2, generator=g)
 
-    global_model = ResNet50(norm_type = args.norm_server)
-    global_model.to(device)
-    global_model.train()
-    global_weights = global_model.state_dict()
-
+    global_net = ResNet50(args.norm_server)
+    global_net.to(device)
+    global_net.train()
+    global_weights = global_net.state_dict()
+    
     for epoch in tqdm(range(args.epochs)):
-        local_weights, local_losses, global_losses = [], [], []
-        print(f'\n | Global Training Round : {epoch+1} |\n')
+        local_weights, counts, local_losses, global_losses = [], [], [], []
 
-        global_model.train()
+        global_net.train()
         m = max(int(args.frac * args.num_users),1)
         idxs_users = np.random.choice(range(args.num_users),m, replace=False)
 
-
         for idx in idxs_users:
-            local_model = LocalUpdate(args=args,dataset=train_dataset,idxs=user_groups[idx])
-            w, loss = local_model.update_weights(model = copy.deepcopy(global_model),global_round=epoch)
+            local_net = LocalUpdate(dataset=train_dataset, idxs=user_groups[idx], local_batch_size=args.local_bs,\
+                local_epochs=args.local_ep, worker_init_fn=seed_worker(0), generator=g, device=device)
+            w, loss = local_net.update_weights(model=copy.deepcopy(global_net))
+            counts.append(len(user_groups[idx]))
+
             local_weights.append(copy.deepcopy(w))
             local_losses.append(copy.deepcopy(loss))
-        train_loss_avg.append(sum(local_losses)/len(local_losses))
+        train_loss_avg = sum(local_losses) / len(local_losses)
 
-        global_weights = average_weights(local_weights)
-        global_model.load_state_dict(global_weights)
+        global_weights = average_weights(local_weights, counts)
+        global_net.load_state_dict(global_weights)
+
 
         total, correct = 0, 0 
-        global_model.eval()
+        global_net.eval()
         with torch.no_grad():
             for x, y in testloader:
                 x, y = x.to(device), y.to(device)
-                yhat = global_model(x)
+                yhat = global_net(x)
                 _, predicted = torch.max(yhat.data, 1)
                 global_losses.append(loss_fn(yhat, y).item())
                 total += y.size(0)

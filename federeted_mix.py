@@ -16,6 +16,7 @@ from update import LocalUpdate, DatasetSplit, test_inference
 from mix_models import ResNet50
 from torchvision import models
 
+
 if __name__ == '__main__':
     
     args = args_parser()
