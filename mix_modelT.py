@@ -17,7 +17,7 @@ def Norm(planes, type, num_groups=2):
     if type == 'Batch Norm':
         return nn.BatchNorm2d(planes)
     elif type == 'Group Norm':
-        return GroupNorm32(num_groups, planes)
+        return GroupNorm32(num_groups = num_groups, num_channels = planes)
     
     
 class Basicblock(nn.Module):
