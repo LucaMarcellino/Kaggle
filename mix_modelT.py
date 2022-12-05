@@ -40,7 +40,7 @@ class Basicblock(nn.Module):
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_planes, self.expansion * planes,
                           kernel_size=1, stride=stride, bias=False),
-                Norm(planes, type="Batch Norm"), Norm(planes, type="Group Norm")
+                Norm(planes, type="Batch Norm"),# Norm(planes, type="Group Norm")
             )
 
     def forward(self, x):
@@ -54,7 +54,7 @@ class Basicblock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_planes, planes, stride=1, norm_type="Batch Norm", alpha_b = 0.9, alpha_g = 0.1 ):
+    def __init__(self, in_planes,alpha_b, alpha_g , planes, stride=1, norm_type="Batch Norm" ):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = Norm(planes, type="Batch Norm")
@@ -87,7 +87,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10, norm_type='Batch Norm', alpha_b = 0.9, alpha_g = 0.1 ):
+    def __init__(self, block,alpha_b, alpha_g , num_blocks, num_classes=10, norm_type='Batch Norm', ):
         super(ResNet, self).__init__()
         self.alpha_b = alpha_b
         self.alpha_g = alpha_g
