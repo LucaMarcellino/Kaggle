@@ -83,7 +83,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10, norm_type='Batch Norm', alpha_b = 1, alpha_g = 0.0 ):
+    def __init__(self, block, num_blocks, num_classes=10, norm_type='Batch Norm', alpha_b = 0.9, alpha_g = 0.1 ):
         super(ResNet, self).__init__()
 
         self.in_planes = 64
@@ -129,4 +129,4 @@ def ResNet38(norm_type="Batch Norm"):
 
 
 def ResNet50(alpha_b, alpha_g,norm_type="Batch Norm"):
-    return ResNet(Bottleneck, [3, 4, 6, 3], norm_type=norm_type, alpha_g=alpha_g,alpha_b=alpha_b)
+    return ResNet(Bottleneck, [3, 4, 6, 3], norm_type=norm_type, alpha_g=alpha_g, alpha_b =alpha_b)
