@@ -50,7 +50,7 @@ class Basicblock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_planes, planes, stride=1, norm_type="Batch Norm", alpha_b = 1, alpha_g = 0.0 ):
+    def __init__(self, in_planes, planes, stride=1, norm_type="Batch Norm", alpha_b = 0.9, alpha_g = 0.1 ):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = Norm(planes, type="Batch Norm")
@@ -104,7 +104,7 @@ class ResNet(nn.Module):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
-            layers.append(block(self.in_planes, planes, stride, norm_type))
+            layers.append(block(self.in_planes, planes, stride, norm_type, alpha_g = self.alpha_g, alpha_b = self.alpha_b))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
@@ -129,4 +129,4 @@ def ResNet38(norm_type="Batch Norm"):
 
 
 def ResNet50(alpha_b, alpha_g,norm_type="Batch Norm"):
-    return ResNet(Bottleneck(alpha_b = alpha_b,alpha_g=alpha_g ), [3, 4, 6, 3], norm_type=norm_type, alpha_g=alpha_g,alpha_b=alpha_b)
+    return ResNet(Bottleneck, [3, 4, 6, 3], norm_type=norm_type, alpha_g=alpha_g,alpha_b=alpha_b)
