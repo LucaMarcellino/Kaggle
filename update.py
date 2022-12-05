@@ -46,6 +46,11 @@ class LocalUpdate(object):
                 loss = self.criterion(log_probs, labels)
                 loss.backward()
                 optimizer.step()
+                if self.args.verbose and (batch_idx % 10 == 0):
+                    print('| Local Epoch : {} | [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                        iter, batch_idx * len(images),
+                        len(self.trainloader.dataset),
+                        100. * batch_idx / len(self.trainloader), loss.item()))
 
                 batch_loss.append(loss.item())
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
