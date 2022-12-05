@@ -13,7 +13,7 @@ import torch.nn as nn
 from options import args_parser 
 from utils import exp_details, get_dataset, average_weights
 from update import LocalUpdate, DatasetSplit, test_inference
-from models import ResNet50_server,ResNet50_clients
+from models import ResNet50
 from torchvision import models
 
 if __name__ == '__main__':
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     train_dataset, test_dataset, user_groups = get_dataset(args)
     testloader = torch.utils.data.DataLoader(test_dataset, batch_size=args.local_bs, shuffle=False, num_workers=2, generator=g)
 
-    global_model = ResNet50_server(norm_layer = args.norm_server)
+    global_model = ResNet50(norm_type = args.norm_server)
     global_model.to(device)
     global_model.train()
     global_weights = global_model.state_dict()
