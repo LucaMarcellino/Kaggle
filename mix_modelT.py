@@ -54,7 +54,7 @@ class Basicblock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_planes,alpha_b, alpha_g , planes, stride=1, norm_type="Batch Norm" ):
+    def __init__(self, in_planes,alpha_b, alpha_g , planes, stride=1, norm_type="Batch Norm"):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = Norm(planes, type="Batch Norm")
@@ -81,13 +81,13 @@ class Bottleneck(nn.Module):
         out = F.relu(self.alpha_b*self.bn1(self.conv1(x))+ self.alpha_g * self.gn1(self.conv1(x)))
         out = (self.alpha_b * self.bn2(self.conv2(out)) + self.alpha_g *self.gn2(self.conv2(out)))
         out = (self.alpha_b * self.bn3(self.conv2(out)) + self.alpha_g *self.gn3(self.conv2(out)))
-        #out += self.shortcut(x)
+        out += self.shortcut(x)
         out = F.relu(out)
         return out
 
 
 class ResNet(nn.Module):
-    def __init__(self, block,alpha_b, alpha_g , num_blocks, num_classes=10, norm_type='Batch Norm', ):
+    def __init__(self, block,alpha_b, alpha_g , num_blocks, num_classes=10, norm_type='Batch Norm'):
         super(ResNet, self).__init__()
         self.alpha_b = alpha_b
         self.alpha_g = alpha_g
