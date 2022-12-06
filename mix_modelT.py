@@ -6,6 +6,7 @@ We added the option to set the normalization layer type by passing an argument w
 """
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 type = 'Batch Norm'
 
@@ -74,7 +75,7 @@ class Bottleneck(nn.Module):
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_planes, self.expansion*planes,
                           kernel_size=1, stride=stride, bias=False),
-                (self.alpha_b*Norm(planes, type="Batch Norm")+ self.alpha_g*Norm(planes, type="Group Norm"))
+                (torch.mul(self.alpha_b*Norm(planes, type="Batch Norm"))+ torch.mul(self.alpha_g*Norm(planes, type="Group Norm")))
             )
 
     def forward(self, x):
