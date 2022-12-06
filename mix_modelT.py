@@ -75,7 +75,7 @@ class Bottleneck(nn.Module):
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_planes, self.expansion*planes,
                           kernel_size=1, stride=stride, bias=False),
-                (torch.mul(self.alpha_b*Norm(planes, type="Batch Norm"))+ torch.mul(self.alpha_g*Norm(planes, type="Group Norm")))
+                (torch.mul(self.alpha_b,Norm(planes, type="Batch Norm"))+ torch.mul(self.alpha_g,Norm(planes, type="Group Norm")))
             )
 
     def forward(self, x):
