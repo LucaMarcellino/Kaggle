@@ -13,7 +13,7 @@ import torch.nn as nn
 from options import args_parser 
 from utils import exp_details, get_dataset, average_weights
 from update import LocalUpdate
-from models import ResNet50
+from mix_modelT import ResNet50
 from torchvision import models
 from reproducibility import seed_worker
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     train_dataset, test_dataset, user_groups = get_dataset(args)
     testloader = torch.utils.data.DataLoader(test_dataset, batch_size=args.local_bs, shuffle=False, num_workers=2, generator=g)
 
-    global_net = ResNet50(norm_type = "Group Norm")#,alpha_b = 1, alpha_g = 0)
+    global_net = ResNet50(norm_type = "Group Norm",alpha_b = 1, alpha_g = 0)
     global_net.to(device)
     global_net.train()
     global_weights = global_net.state_dict()
@@ -52,7 +52,7 @@ if __name__ == '__main__':
         for idx in idxs_users:
             local_net = LocalUpdate(dataset=train_dataset, idxs=user_groups[idx], local_batch_size=args.local_bs,\
                 local_epochs=args.local_ep, worker_init_fn=seed_worker(0), generator=g, device=device)
-            local_resnet = ResNet50(norm_type = "Group Norm")#,alpha_b = 1, alpha_g = 0)
+            local_resnet = ResNet50(norm_type = "Group Norm",alpha_b = 1, alpha_g = 0)
             local_resnet.load_state_dict(global_weights)
             local_resnet.to(device)
             w, loss = local_net.update_weights(model=copy.deepcopy(local_resnet))
