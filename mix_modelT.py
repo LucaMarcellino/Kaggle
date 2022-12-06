@@ -4,15 +4,15 @@ From 'Deep Residual Learning for Image Recognition' by Kaiming et al.
 This version has in the first convolutional layer a kernel size of 3 instead of 7 to deal better with CIFAR-10.
 We added the option to set the normalization layer type by passing an argument when calling ResNet50.
 """
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
 
 type = 'Batch Norm'
 
 class GroupNorm32(nn.GroupNorm):
-    def __init__(self, num_channels, num_groups=2, **kargs):
-        super().__init__(num_groups, num_channels, **kargs)
+    def init(self, num_channels, num_groups=2, **kargs):
+        super().init(num_groups, num_channels, **kargs)
 
 def Norm(planes, type, num_groups=2):
     if type == 'Batch Norm':
@@ -24,8 +24,8 @@ def Norm(planes, type, num_groups=2):
 class Basicblock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_planes, planes, stride=1, norm_type="Batch Norm", alpha_b = 1, alpha_g = 0.0 ):
-        super(Basicblock, self).__init__()
+    def init(self, in_planes, planes, stride=1, norm_type="Batch Norm", alpha_b = 1, alpha_g = 0.0 ):
+        super(Basicblock, self).init()
         self.conv1 = nn.Conv2d(
             in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = Norm(planes, type="Batch Norm")
@@ -55,8 +55,8 @@ class Basicblock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_planes,alpha_b, alpha_g , planes, stride=1, norm_type="Batch Norm"):
-        super(Bottleneck, self).__init__()
+    def init(self, in_planes,alpha_b, alpha_g , planes, stride=1, norm_type="Batch Norm"):
+        super(Bottleneck, self).init()
         self.alpha_b = alpha_b
         self.alpha_g = alpha_g
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
@@ -68,27 +68,29 @@ class Bottleneck(nn.Module):
         self.gn2 = Norm(planes, type="Group Norm")
         self.conv3 = nn.Conv2d(planes, self.expansion *
                                planes, kernel_size=1, bias=False)
-        self.bn3 = Norm(planes, type="Batch Norm")
-        self.gn3 = Norm(planes, type="Group Norm")
+        self.bn3 = Norm(self.expansion * planes, type="Batch Norm")
+        self.gn3 = Norm(self.expansion * planes, type="Group Norm")
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion*planes,
-                          kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False)
             )
 
     def forward(self, x):
         out = F.relu(self.alpha_b*self.bn1(self.conv1(x))+ self.alpha_g * self.gn1(self.conv1(x)))
-        out = (self.alpha_b * self.bn2(self.conv2(out)) + self.alpha_g *self.gn2(self.conv2(out)))
-        out = (self.alpha_b * self.bn3(self.conv2(out)) + self.alpha_g *self.gn3(self.conv2(out)))
-        out += (self.alpha_b * self.bn2(self.shortcut(out)) + self.alpha_g *self.gn2(self.shortcut(out)))
+        out = F.relu(self.alpha_b * self.bn2(self.conv2(out)) + self.alpha_g *self.gn2(self.conv2(out)))
+        #print("Batch: ",self.bn2(self.conv2(out)).size())
+        #print("Group: ",self.gn2(self.conv2(out)).size())
+        out = (self.alpha_b * self.bn3(self.conv3(out)) + self.alpha_g *self.gn3(self.conv3(out)))
+        #print("Layer2: ",out.size())
+        #print("Shortcut: ",self.shortcut(x).size())
+        out += (self.alpha_b * self.bn3(self.shortcut(x)) + self.alpha_g *self.gn3(self.shortcut(x)))
         out = F.relu(out)
         return out
 
-
 class ResNet(nn.Module):
-    def __init__(self, block,alpha_b, alpha_g , num_blocks, num_classes=10, norm_type='Batch Norm'):
-        super(ResNet, self).__init__()
+    def init(self, block,alpha_b, alpha_g , num_blocks, num_classes=10, norm_type='Batch Norm'):
+        super(ResNet, self).init()
         self.alpha_b = alpha_b
         self.alpha_g = alpha_g
         self.in_planes = 64
