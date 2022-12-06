@@ -19,7 +19,7 @@ def Norm(planes, type, num_groups=2):
     elif type == 'Group Norm':
        return nn.GroupNorm(num_groups, planes)
     
-    
+"""  
 class Basicblock(nn.Module):
     expansion = 1
 
@@ -49,7 +49,7 @@ class Basicblock(nn.Module):
         out += self.shortcut(x)
         out = F.relu(out)
         return out
-
+"""
 
 class Bottleneck(nn.Module):
     expansion = 4
@@ -123,10 +123,10 @@ class ResNet(nn.Module):
         out = self.linear(out)
         return out
 
-
+"""
 def ResNet18(norm_type="Batch Norm"):
     return ResNet(Basicblock, [2, 2, 2, 2], norm_type=norm_type)
-
+"""
 
 def ResNet38(norm_type="Batch Norm"):
     return ResNet(Bottleneck, [2, 3, 5, 2], norm_type=norm_type)
